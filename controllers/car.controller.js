@@ -24,26 +24,17 @@ carController.createCar = async (req, res, next) => {
 
 carController.getCars = async (req, res, next) => {
   try {
-    const filterKeys = Object.keys(filterQuery);
-    console.log(filterQuery);
-    if (filterKeys.length) {
-      const exception = new Error("Only accept page query");
-      throw exception;
-    }
-
-    let allCars = await Car.find();
-    allCars = allCars.filter((item) => item.isDeleted === false);
-    const totalPages = parseInt(allCars.length / 10);
-    page = parseInt(page) || 1;
-    let limit = 10;
-    let offset = limit * (page - 1);
-    allCars = allCars.slice(offset, offset + limit);
+    let page = req.query.page ? req.query.page : 1;
+    const limit = 10;
+    let skip = (page - 1) * limit;
+    const cars = await Car.find({}).skip(skip).limit(limit);
+    const total = await Car.find().count();
 
     const response = {
       message: "Get Car List Successfully!",
       page: page,
-      total: totalPages,
-      cars: allCars,
+      total: Math.floor(total / limit),
+      cars: cars,
     };
 
     res.status(200).send(response);
