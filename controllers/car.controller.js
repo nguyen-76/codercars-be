@@ -46,34 +46,18 @@ carController.getCars = async (req, res, next) => {
 };
 
 carController.editCar = async (req, res, next) => {
-  const { id } = req.params;
-  const { make, model, transmission_type, size, style, release_date, price } =
-    req.body;
-  const updateInfo = {
-    make,
-    model,
-    transmission_type,
-    size,
-    style,
-    release_date,
-    price,
-  };
-
-  const options = { new: true };
-
-  if (!Object.keys(updateInfo))
-    throw new AppError(402, "Bad Request", "Edit car Error");
-
   try {
-    const car = await Car.findById(id, { isDeleted: false });
+    let { id } = req.params;
+    const updates = req.body;
 
-    if (!car) throw new Error("Car is not exist");
+    let updatedCar = await Car.findByIdAndUpdate(
+      id,
+      { ...updates },
+      { new: true }
+    );
+    const response = { message: "Update Car Successfully!", car: updatedCar };
 
-    const updated = await Car.findByIdAndUpdate(id, updateInfo, options);
-
-    if (!updated) throw new Error("Car is not exist");
-
-    res.status(200).send({ message: "Edit car successfully", car: updated });
+    res.status(200).send(response);
   } catch (err) {
     next(err);
   }
@@ -81,21 +65,14 @@ carController.editCar = async (req, res, next) => {
 
 carController.deleteCar = async (req, res, next) => {
   const { id } = req.params;
-
-  const options = { new: true };
-
   try {
-    const deletedCar = await Car.findByIdAndUpdate(
+    let deletedCar = await Car.findByIdAndUpdate(
       id,
-      {
-        isDeleted: true,
-      },
-      options
+      { isDeleted: true },
+      { new: true }
     );
-
-    res
-      .status(200)
-      .send({ cars: deletedCar, message: "Delete car successfully" });
+    const response = { message: "Delete car successfully!", car: deletedCar };
+    res.status(200).send(response);
   } catch (err) {
     next(err);
   }

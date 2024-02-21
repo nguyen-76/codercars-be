@@ -9,19 +9,18 @@ mongoose.connect("mongodb://localhost:27017/Codercars", () => {
 
 const createCar = async () => {
   let newData = await csv().fromFile("data.csv");
-  newData = newData.map((e) => {
+  newData = Array.from(newData);
+  newData = newData.map((car) => {
     return {
-      make: e.Make,
-      model: e.Model,
-      release_date: Number(e.Year),
-      transmission_type: e["Transmission Type"],
-      style: e["Vehicle Style"],
-      size: e["Vehicle Size"],
-      price: Number(e.MSRP),
+      make: car.Make,
+      model: car.Model,
+      release_date: Number(car.Year),
+      transmission_type: car["Transmission Type"],
+      size: car["Vehicle Size"],
+      style: car["Vehicle Style"],
+      price: Number(car.MSRP),
     };
   });
-  newData.forEach((e) => {
-    Car.create(e);
-  });
+  await Car.create(newData).then(() => console.log("create success"));
 };
 createCar();
