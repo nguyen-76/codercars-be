@@ -31,7 +31,7 @@ carController.getCars = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
-    const total = await Car.find().count();
+    const total = await Car.countDocuments({ isDeleted: false });
 
     const response = {
       message: "Get Car List Successfully!",
