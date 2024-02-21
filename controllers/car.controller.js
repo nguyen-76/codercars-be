@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const Car = require("../models/Car");
 const carController = {};
 
@@ -64,15 +65,16 @@ carController.editCar = async (req, res, next) => {
 };
 
 carController.deleteCar = async (req, res, next) => {
-  const { id } = req.params;
   try {
-    let deletedCar = await Car.findByIdAndUpdate(
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID");
+    const car = await Car.findByIdAndUpdate(
       id,
       { isDeleted: true },
-      { new: true }
+      { new: true, runValidators: true }
     );
-    const response = { message: "Delete car successfully!", car: deletedCar };
-    res.status(200).send(response);
+    if (!car) throw new Error("Car not found!");
+    return res.status(200).send({ message: "Delete Car Successfully!", car });
   } catch (err) {
     next(err);
   }
