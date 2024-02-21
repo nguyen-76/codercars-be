@@ -26,8 +26,10 @@ carController.getCars = async (req, res, next) => {
   try {
     let page = req.query.page ? req.query.page : 1;
     const limit = 10;
-    let skip = (page - 1) * limit;
-    const cars = await Car.find({}).skip(skip).limit(limit);
+    const cars = await Car.find()
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
     const total = await Car.find().count();
 
     const response = {
