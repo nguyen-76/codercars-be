@@ -1,4 +1,3 @@
-const mongoose = require("mongoose");
 const Car = require("../models/Car");
 const carController = {};
 
@@ -27,18 +26,17 @@ carController.getCars = async (req, res, next) => {
   try {
     let page = req.query.page ? req.query.page : 1;
     const limit = 10;
-    let skip = (page - 1) * limit;
-    const data = await Car.find({}).skip(skip).limit(limit);
+    const cars = await Car.find()
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
     const total = await Car.find().count();
-    const response = {
-      message: "success",
-      data: {
-        cars: data,
-        total: Math.floor(total / limit),
-      },
-    };
-
-    res.send(response);
+    return res.status(200).json({
+      message: "Get Car List Successfully!",
+      cars,
+      page,
+      total: Math.ceil(total / limit),
+    });
   } catch (error) {
     next(error);
   }
